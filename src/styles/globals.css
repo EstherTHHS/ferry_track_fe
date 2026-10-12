@@ -1,36 +1,417 @@
 @import "tailwindcss";
+@import "./compacto/index.css";
+
+@custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --app-font-sans: var(--font-open-sans);
+  --app-font-title: var(--font-poppins);
+  --app-font-display: var(--font-poppins);
+  --app-font-description: var(--font-open-sans);
+  --app-font-mono: var(--font-jetbrains-mono);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--app-bg);
+  color: var(--app-text);
+  font-family: var(--app-font-sans, ui-sans-serif, system-ui, sans-serif);
 }
 
 @layer components {
   .home {
-    @apply flex flex-1 flex-col items-center justify-center gap-2 p-8 text-center;
+    @apply flex h-dvh flex-col p-2 md:p-5;
   }
 
-  .home__title {
-    @apply text-3xl font-semibold tracking-tight;
+  .month-calendar {
+    @apply flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-app-border bg-app-panel;
+  }
+
+  .month-calendar__header {
+    @apply grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-3 px-3 pt-3 pb-2 md:grid-cols-[1fr_auto_1fr] md:gap-4 md:px-6 md:py-4;
+  }
+
+  .month-calendar__heading {
+    @apply col-start-1 row-start-1 flex min-w-0 flex-col gap-0.5 md:col-auto md:row-auto;
+  }
+
+  .month-calendar__title {
+    @apply truncate font-display text-2xl leading-tight tracking-[-0.02em] text-app-bright md:text-4xl;
+  }
+
+  .month-calendar__year {
+    @apply font-light;
+  }
+
+  .month-calendar__month {
+    @apply font-bold;
+  }
+
+  .month-calendar__error {
+    @apply font-description text-[12px] text-app-error;
+  }
+
+  .month-calendar__stats {
+    @apply col-span-2 row-start-2 flex items-center justify-between gap-4 rounded-lg bg-app-hover px-3 py-2 md:col-span-1 md:row-auto md:justify-center md:gap-12 md:bg-transparent md:p-0;
+  }
+
+  .month-calendar__stat {
+    @apply flex flex-col items-start gap-0.5 text-left;
+  }
+
+  .month-calendar__stat-label {
+    @apply flex items-center gap-1 font-title text-[10px] font-semibold tracking-[0.08em] text-app-dim uppercase md:text-[11px];
+  }
+
+  .month-calendar__info-button {
+    @apply flex size-6 cursor-help items-center justify-center rounded-full border-0 bg-transparent p-0 text-app-dim md:size-4 transition-colors duration-200 outline-none hover:text-app-accent focus-visible:ring-2 focus-visible:ring-app-accent/40 [&_svg]:size-3.5;
+  }
+
+  .month-calendar__stat-value {
+    @apply font-display text-lg leading-tight font-semibold text-app-bright tabular-nums md:text-xl;
+  }
+
+  .month-calendar__controls {
+    @apply contents md:flex md:items-center md:justify-self-end;
+  }
+
+  .month-calendar__nav {
+    @apply col-span-2 row-start-3 flex items-center justify-between gap-1.5 md:col-auto md:row-auto md:justify-start;
+  }
+
+  .month-calendar__actions {
+    @apply col-start-2 row-start-1 flex items-center gap-1.5 md:col-auto md:row-auto md:ms-2;
+  }
+
+  .month-calendar__tools {
+    @apply flex items-center gap-1.5 md:me-2;
+  }
+
+  .month-calendar__arrows {
+    @apply flex items-center gap-1.5;
+  }
+
+  .month-calendar__nav-button {
+    @apply flex size-9 cursor-pointer items-center justify-center rounded-full border border-transparent bg-app-hover text-app-text transition-colors duration-200 outline-none hover:bg-app-selected hover:text-app-bright focus-visible:ring-3 focus-visible:ring-app-accent/30 [&_svg]:size-4;
+  }
+
+  .month-calendar__nav-button--active {
+    @apply bg-app-selected text-app-accent;
+  }
+
+  .month-calendar__today-button {
+    @apply flex h-9 cursor-pointer items-center rounded-full border border-transparent bg-app-hover px-4 font-title text-[13px] font-medium text-app-text transition-colors duration-200 outline-none hover:bg-app-selected hover:text-app-bright focus-visible:ring-3 focus-visible:ring-app-accent/30;
+  }
+
+  .month-calendar__main {
+    @apply flex min-h-0 flex-1;
+  }
+
+  .month-calendar__body {
+    @apply min-h-0 min-w-0 flex-1;
+  }
+
+  .month-calendar__grid {
+    @apply h-full;
+  }
+
+  .month-calendar__grid-header {
+    @apply border-b border-app-border;
+  }
+
+  .month-calendar__weekday {
+    @apply h-9 pb-2 font-title text-[13px] font-normal text-app-text md:text-[15px];
+  }
+
+  .month-calendar__weekday-label {
+    @apply ps-2 md:ps-3.5;
+  }
+
+  .month-calendar__week {
+    @apply border-b border-app-border;
+  }
+
+  .month-calendar__day {
+    @apply min-w-0 cursor-pointer border-s border-app-border transition-colors duration-200 [container-type:size] hover:bg-app-hover;
+  }
+
+  .month-calendar__day--flash {
+    @apply bg-app-selected;
+  }
+
+  .month-calendar__day--outside {
+    @apply text-app-dim/60;
+  }
+
+  .month-calendar__day-top {
+    @apply flex flex-col px-1 pt-1 pb-1.5 md:px-2 md:pt-1.5 md:pb-2;
+  }
+
+  .month-calendar__day-top-inner {
+    @apply flex h-[calc(100cqh-0.625rem)] flex-col items-start justify-between md:h-[calc(100cqh-0.875rem)];
+  }
+
+  .month-calendar__day-footer {
+    @apply flex w-full items-center justify-center gap-2 md:justify-between;
+  }
+
+  .month-calendar__day-count {
+    @apply hidden min-w-0 truncate font-title text-[12px] font-medium text-app-dim tabular-nums md:block;
+  }
+
+  .month-calendar__legs {
+    @apply flex shrink-0 items-center gap-1 md:gap-1.5;
+  }
+
+  .month-calendar__leg {
+    @apply size-2.5 rounded-full border-2 border-app-border-mid bg-transparent md:size-4;
+  }
+
+  .month-calendar__leg--taken {
+    @apply border-app-success bg-app-success;
+  }
+
+  .month-calendar__leg--missed {
+    @apply border-app-warn bg-app-warn;
+  }
+
+  .month-calendar__leg--cancelled {
+    @apply border-app-error bg-app-error;
+  }
+
+  .month-calendar__day--outside .month-calendar__day-footer {
+    @apply opacity-50;
+  }
+
+  .month-calendar__day-number {
+    @apply flex h-6 min-w-6 items-center justify-center rounded-full px-1 font-title text-[13px] font-medium whitespace-nowrap text-app-bright md:h-7 md:min-w-7 md:px-1.5 md:text-[15px];
+  }
+
+  .month-calendar__day--outside .month-calendar__day-number {
+    @apply font-normal text-app-dim/70;
+  }
+
+  .month-calendar__day-number--today {
+    @apply bg-app-accent text-app-on-solid;
+  }
+
+  .profile-menu__trigger {
+    @apply flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-transparent bg-app-accent font-title text-[14px] leading-none font-semibold text-app-on-solid transition-colors duration-200 outline-none select-none hover:bg-app-accent/85 focus-visible:ring-3 focus-visible:ring-app-accent/30 aria-expanded:bg-app-accent/85;
+  }
+
+  .profile-menu__content {
+    @apply min-w-56;
+  }
+
+  .profile-menu__user {
+    @apply mb-1 flex flex-col gap-0.5 border-b border-app-border px-2 pt-1.5 pb-2;
+  }
+
+  .profile-menu__name {
+    @apply truncate font-title text-[13px] font-semibold text-app-bright;
+  }
+
+  .profile-menu__email {
+    @apply truncate font-description text-[11px] text-app-dim;
+  }
+
+  .login {
+    @apply flex flex-1 items-center justify-center bg-app-bg px-4 py-12;
+  }
+
+  .login__panel {
+    @apply flex w-full max-w-sm flex-col gap-6;
+  }
+
+  .login__header {
+    @apply flex flex-col gap-1.5;
+  }
+
+  .login__eyebrow {
+    @apply font-title text-[11px] font-semibold tracking-[0.14em] text-app-dim uppercase;
+  }
+
+  .login__title {
+    @apply font-display text-xl leading-7 font-semibold tracking-[-0.01em] text-app-bright;
+  }
+
+  .login__subtitle {
+    @apply font-description text-[13px] leading-relaxed text-app-dim;
+  }
+
+  .login__form {
+    @apply flex flex-col gap-4;
+  }
+
+  .login__field {
+    @apply flex flex-col gap-1.5;
+  }
+
+  .login__label {
+    @apply font-title text-[11px] leading-none font-semibold text-app-dim;
+  }
+
+  .login__field-error {
+    @apply font-description text-[11px] leading-snug text-app-error;
+  }
+
+  .login__message {
+    @apply rounded-md border border-app-border bg-app-hover px-2.5 py-2 font-description text-[12px] leading-snug text-app-text;
+  }
+
+  .login__message--error {
+    @apply border-app-error/30 bg-app-error/10 text-app-error;
+  }
+
+  .login__submit {
+    @apply w-full;
+  }
+
+  .day-editor {
+    @apply flex min-h-0 flex-1 flex-col;
+  }
+
+  .day-editor__field {
+    @apply flex min-w-0 flex-1 flex-col gap-1.5;
+  }
+
+  .day-editor__label {
+    @apply font-title text-[11px] leading-none font-semibold text-app-dim;
+  }
+
+  .day-editor__picker {
+    @apply w-full;
+  }
+
+  .day-editor__time {
+    @apply flex items-center gap-1;
+  }
+
+  .day-editor__time-picker {
+    @apply min-w-0 flex-1;
+  }
+
+  .day-editor__leg {
+    @apply mt-3 flex flex-col gap-2.5 rounded-md border border-app-border p-3 disabled:opacity-60;
+  }
+
+  .day-editor__legend {
+    @apply flex items-center gap-1.5 px-1 font-title text-[12px] font-semibold text-app-bright;
+  }
+
+  .day-editor__legend-icon {
+    @apply size-3.5 text-app-dim;
+  }
+
+  .day-editor__row {
+    @apply flex flex-col gap-2.5 sm:flex-row sm:items-end sm:gap-3;
+  }
+
+  .day-editor__count {
+    @apply mt-3 font-title text-[12px] font-medium text-app-dim tabular-nums;
+  }
+
+  .day-editor__error {
+    @apply mt-2 rounded-md border border-app-error/30 bg-app-error/10 px-2.5 py-2 font-description text-[12px] text-app-error;
+  }
+
+  .recorded-days {
+    @apply fixed inset-x-0 bottom-0 z-100 flex h-[70dvh] flex-col rounded-t-xl border-t border-app-border-mid bg-app-panel md:static md:z-auto md:h-auto md:w-80 md:shrink-0 md:rounded-none md:border-s md:border-t-0 md:border-app-border;
+  }
+
+  .recorded-days__header {
+    @apply flex h-12 shrink-0 items-center justify-between gap-2 border-b border-app-border ps-4 pe-2 md:h-[calc(2.25rem+1px)] md:items-start;
+  }
+
+  .recorded-days__title {
+    @apply font-title text-[15px] leading-normal font-semibold text-app-bright;
+  }
+
+  .recorded-days__close {
+    @apply flex size-9 cursor-pointer md:-mt-0.5 md:size-7 items-center justify-center rounded-md border-0 bg-transparent text-app-dim transition-colors duration-200 outline-none hover:bg-app-hover hover:text-app-bright focus-visible:ring-2 focus-visible:ring-app-accent [&_svg]:size-3.5;
+  }
+
+  .recorded-days__body {
+    @apply flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-3;
+  }
+
+  .recorded-days__status {
+    @apply font-description text-[12px] text-app-dim;
+  }
+
+  .recorded-days__group {
+    @apply flex flex-col gap-1;
+  }
+
+  .recorded-days__month {
+    @apply font-title text-[11px] font-semibold tracking-[0.08em] text-app-dim uppercase;
+  }
+
+  .recorded-days__list {
+    @apply flex flex-col;
+  }
+
+  .recorded-days__item {
+    @apply flex w-full cursor-pointer items-center gap-2 rounded-md border border-transparent bg-transparent px-2 py-2.5 md:py-1.5 text-left transition-colors duration-200 outline-none hover:bg-app-hover focus-visible:border-app-accent focus-visible:ring-2 focus-visible:ring-app-accent/30;
+  }
+
+  .recorded-days__item--active {
+    @apply border-app-border-accent bg-app-selected;
+  }
+
+  .recorded-days__date {
+    @apply min-w-0 flex-1 truncate font-title text-[13px] font-medium text-app-bright;
+  }
+
+  .recorded-days__count {
+    @apply font-title text-[12px] text-app-dim tabular-nums;
+  }
+
+  .recorded-days__dots {
+    @apply flex items-center gap-1;
+  }
+
+  .recorded-days__dot {
+    @apply size-2.5 rounded-full border-2 border-app-border-mid;
+  }
+
+  .recorded-days__dot--taken {
+    @apply border-app-success bg-app-success;
+  }
+
+  .recorded-days__dot--missed {
+    @apply border-app-warn bg-app-warn;
+  }
+
+  .recorded-days__dot--cancelled {
+    @apply border-app-error bg-app-error;
+  }
+
+  .theme-dialog__swatch {
+    @apply flex h-11 w-full overflow-hidden rounded-md border border-app-border;
+  }
+
+  .theme-dialog__chip {
+    @apply h-full flex-1;
+  }
+
+  .theme-dialog__chip--surface {
+    @apply bg-app-bg;
+  }
+
+  .theme-dialog__chip--panel {
+    @apply bg-app-sidebar;
+  }
+
+  .theme-dialog__chip--accent {
+    @apply bg-app-accent;
+  }
+}
+
+/* Unlayered on purpose: it must beat the 12px utility inside compacto's Input.
+   iOS Safari zooms the page into any focused field under 16px. */
+@media (max-width: 767px) {
+  .login__input,
+  .day-editor__input {
+    font-size: 16px;
   }
 }

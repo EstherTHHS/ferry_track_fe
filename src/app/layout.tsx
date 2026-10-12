@@ -1,17 +1,28 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { JetBrains_Mono, Open_Sans, Poppins } from "next/font/google";
+import { cookies } from "next/headers";
+import type { CSSProperties } from "react";
 
+import { DEFAULT_PALETTE, LIGHT_PALETTES, PALETTE_COOKIE } from "@/constants/theme";
+import { appThemeCssVars, COLOR_THEMES } from "@/lib/color-themes";
+import { PaletteProvider } from "@/providers/palette-provider";
 import QueryProvider from "@/providers/QueryProvider";
 import StoreProvider from "@/providers/StoreProvider";
 import "@/styles/globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const poppins = Poppins({
+  variable: "--font-poppins",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const openSans = Open_Sans({
+  variable: "--font-open-sans",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
 });
 
@@ -20,16 +31,22 @@ export const metadata: Metadata = {
   description: "Ferry tracking frontend",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const saved = (await cookies()).get(PALETTE_COOKIE)?.value;
+  const palette = LIGHT_PALETTES.find((p) => p.key === saved)?.key ?? DEFAULT_PALETTE;
+
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${poppins.variable} ${openSans.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      style={appThemeCssVars(COLOR_THEMES[palette]) as CSSProperties}
     >
       <body className="min-h-full flex flex-col">
-        <StoreProvider>
-          <QueryProvider>{children}</QueryProvider>
-        </StoreProvider>
+        <PaletteProvider defaultPalette={palette}>
+          <StoreProvider>
+            <QueryProvider>{children}</QueryProvider>
+          </StoreProvider>
+        </PaletteProvider>
       </body>
     </html>
   );
